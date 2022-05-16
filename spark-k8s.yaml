@@ -1,0 +1,43 @@
+apiVersion: "sparkoperator.k8s.io/v1beta2"
+kind: SparkApplication
+metadata:
+  name: spark-k8s
+  namespace: spark-apps
+spec:
+  type: Scala
+  mode: cluster
+  image: cornelcreanga/k8exercise:3.1.1
+  imagePullPolicy: Always
+  mainClass: com.creanga.words.WordCount
+  mainApplicationFile: "local:///app/app.jar"
+  sparkVersion: "3.1.1"
+  restartPolicy:
+    type: OnFailure
+    onFailureRetries: 3
+    onFailureRetryInterval: 10
+    onSubmissionFailureRetries: 5
+    onSubmissionFailureRetryInterval: 20
+  volumes:
+    - name: "test-volume"
+      hostPath:
+        path: "/tmp"
+        type: Directory
+  driver:
+    cores: 1
+    coreLimit: "1200m"
+    memory: "512m"
+    labels:
+      version: 3.1.1
+    serviceAccount: spark
+    volumeMounts:
+      - name: "test-volume"
+        mountPath: "/tmp"
+  executor:
+    cores: 1
+    instances: 1
+    memory: "512m"
+    labels:
+      version: 2.4.5
+    volumeMounts:
+      - name: "test-volume"
+        mountPath: "/tmp"
