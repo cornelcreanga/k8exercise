@@ -7,6 +7,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import scala.Tuple2;
 
+import java.io.File;
 import java.util.*;
 
 public class WordCount {
@@ -14,12 +15,30 @@ public class WordCount {
     public static void main(String[] args) {
         SparkConf sparkConf = new SparkConf();
         sparkConf.setAppName("WordCount example");
-        //sparkConf.setIfMissing("master", "local[2]");
-        sparkConf.setMaster("local[2]");
         JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
 
-        String limitEnv = System.getenv("ITERATIONS");
-        int limit = limitEnv == null ? 1 : Integer.parseInt(limitEnv);
+//        String limitEnv = System.getenv("ITERATIONS");
+//        int limit = limitEnv == null ? 1 : Integer.parseInt(limitEnv);
+        System.out.println("------Arguments------");
+        for (String arg : args) {
+            System.out.println(arg);
+        }
+        System.out.println("SECRET_USERNAME:"+System.getenv("SECRET_USERNAME"));
+        System.out.println("SECRET_PASSWORD:"+System.getenv("SECRET_PASSWORD"));
+        File file = new File("/opt/spark/mycm");
+        if (file.exists()) {
+            System.out.println("/opt/spark/mycm content");
+            String[] files = file.list();
+            if (files != null) {
+                for (String s : files) {
+                    System.out.println(s);
+                }
+            }
+        } else {
+            System.out.println("/opt/spark/mycm missing");
+        }
+
+        int limit = 10;
         System.out.println("Iterations " + limit);
 
         for (int c = 0; c < limit; c++) {

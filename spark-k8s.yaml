@@ -2,13 +2,16 @@ apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
   name: spark-k8s
-  namespace: spark-apps
+  namespace: spark
 spec:
   type: Scala
   mode: cluster
   image: cornelcreanga/k8exercise:3.1.1
   imagePullPolicy: Always
   mainClass: com.creanga.words.WordCount
+  arguments:
+    - param1=test1
+    - param2=test2
   mainApplicationFile: "local:///app/app.jar"
   sparkVersion: "3.1.1"
   restartPolicy:
@@ -22,22 +25,36 @@ spec:
       hostPath:
         path: "/tmp"
         type: Directory
+    - name: config-vol
+      configMap:
+        name: dummy-cm
   driver:
-    cores: 1
-    coreLimit: "1200m"
-    memory: "512m"
+    cores: 2
+    coreLimit: "2400m"
+    memory: "2048m"
     labels:
       version: 3.1.1
     serviceAccount: spark
     volumeMounts:
       - name: "test-volume"
         mountPath: "/tmp"
+      - name: config-vol
+        mountPath: /opt/spark/mycm
+    envSecretKeyRefs:
+      SECRET_USERNAME:
+        name: secret2
+        key: username
+      SECRET_PASSWORD:
+        name: secret2
+        key: password
   executor:
     cores: 1
     instances: 1
     memory: "512m"
     labels:
-      version: 2.4.5
+      version: 3.1.1
     volumeMounts:
       - name: "test-volume"
         mountPath: "/tmp"
+      - name: config-vol
+        mountPath: /opt/spark/mycm
