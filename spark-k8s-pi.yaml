@@ -1,0 +1,55 @@
+apiVersion: "sparkoperator.k8s.io/v1beta2"
+kind: SparkApplication
+metadata:
+  name: spark-k8s
+  namespace: spark
+spec:
+  type: Scala
+  mode: cluster
+  image: cornelcreanga/k8exercise:3.1.1
+  imagePullPolicy: Always
+  mainClass: com.creanga.words.ComputePi
+  arguments:
+    - param1=test11
+    - param2=test22
+  sparkConf:
+    spark.driver.extraJavaOptions: ""
+    spark.executor.extraJavaOptions: ""
+  mainApplicationFile: "local:///app/app.jar"
+  sparkVersion: "3.1.1"
+  restartPolicy:
+    type: OnFailure
+    onFailureRetries: 3
+    onFailureRetryInterval: 10
+    onSubmissionFailureRetries: 5
+    onSubmissionFailureRetryInterval: 20
+  volumes:
+    - name: "config-vol"
+      configMap:
+        name: dummy-cm
+  driver:
+    cores: 2
+    coreLimit: "2400m"
+    memory: "4096m"
+    labels:
+      version: 3.1.1
+    serviceAccount: spark
+    volumeMounts:
+      - name: config-vol
+        mountPath: /opt/spark/mycm
+    envSecretKeyRefs:
+      SECRET_USERNAME:
+        name: secret2
+        key: username
+      SECRET_PASSWORD:
+        name: secret2
+        key: password
+  executor:
+    cores: 4
+    instances: 1
+    memory: "4096m"
+    labels:
+      version: 3.1.1
+    volumeMounts:
+      - name: config-vol
+        mountPath: /opt/spark/mycm
